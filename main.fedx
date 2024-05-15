@@ -1,0 +1,84 @@
+FedxD > if 1 == 1 then 0
+Traceback (most recent call last):
+  File "D:\Projects\Python\FedxDLanguage\shell.py", line 21, in <module>
+    result, error = basic.run('<stdin>', text)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 1424, in run
+    ast = parser.parse()
+          ^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 464, in parse
+    res = self.expr()
+          ^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 503, in expr
+    node = res.register(self.bin_op(self.comp_expr, ((TT_KEYWORD, 'and'), (TT_KEYWORD, 'or'))))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 525, in comp_expr
+    node = res.register(self.bin_op(self.arith_expr, (TT_EE, TT_NE, TT_LT, TT_GT, TT_LTE, TT_GTE)))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 536, in arith_expr
+    return self.bin_op(self.mod_expr, (TT_PLUS, TT_MINUS))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 539, in mod_expr
+    return self.bin_op(self.term, (TT_MOD))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 542, in term
+    return self.bin_op(self.factor, (TT_MUL, TT_DIV))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 555, in factor
+    return self.power()
+           ^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 558, in power
+    return self.bin_op(self.call, (TT_POW, ), self.factor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 562, in call
+    atom = res.register(self.atom())
+                        ^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 629, in atom
+    if_expr = res.register(self.if_expr())
+                           ^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 667, in if_expr
+    condition = res.register(self.expr())
+                             ^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 503, in expr
+    node = res.register(self.bin_op(self.comp_expr, ((TT_KEYWORD, 'and'), (TT_KEYWORD, 'or'))))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 525, in comp_expr
+    node = res.register(self.bin_op(self.arith_expr, (TT_EE, TT_NE, TT_LT, TT_GT, TT_LTE, TT_GTE)))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 536, in arith_expr
+    return self.bin_op(self.mod_expr, (TT_PLUS, TT_MINUS))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 902, in bin_op
+    left = res.register(func_a())
+                        ^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 539, in mod_expr
+    return self.bin_op(self.term, (TT_MOD))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Projects\Python\FedxDLanguage\basic.py", line 905, in bin_op
+    while self.current_tok.type in ops or (self.current_tok.type, self.current_tok.value) in ops:
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'in <string>' requires string as left operand, not tuple

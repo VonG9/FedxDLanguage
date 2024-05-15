@@ -62,6 +62,7 @@ RESERVED_KEYWORDS = [
     "return",
     "continue",
     "break",
+    "execute",
 ]
 
 
@@ -353,20 +354,27 @@ class Lexer:
         escape_character = False
         self.advance()
 
-        escape_characters = {"n": "\n", "t": "\t"}
+        escape_characters = {
+            "n": "\n",
+             "t": "\t",
+             "\\": "\\",
+             "'": "'",
+             '"': '"',
+             }
 
         while self.current_char != None and (
             self.current_char != '"' or escape_character
         ):
             if escape_character:
                 string += escape_characters.get(self.current_char, self.current_char)
+                escape_character = False
             else:
                 if self.current_char == "\\":
                     escape_character = True
                 else:
                     string += self.current_char
             self.advance()
-            escape_character = False
+            
 
         self.advance()
         return Token(TT_STRING, string, pos_start, self.pos)
@@ -2546,7 +2554,7 @@ class BuiltInFunction(BaseFunction):
                 )
             )
 
-        _, error, _ = run(file.value, script)
+        _, error = run(file.value, script)
         if error:
             return RTResult().failure(
                 RTError(
@@ -3036,7 +3044,6 @@ global_symbol_table.set("system", BuiltInFunction.system)
 global_symbol_table.set("random", BuiltInFunction.random)
 global_symbol_table.set("shuffle", BuiltInFunction.shuffle)
 global_symbol_table.set("execute", BuiltInFunction.execute_file)
-global_symbol_table.set("import", BuiltInFunction.import_file)
 
 
 def run(fn, text):

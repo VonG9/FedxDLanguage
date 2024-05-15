@@ -1,6 +1,8 @@
 import basic
 import sys
 
+running = True
+
 if len(sys.argv) == 2:
     filename = sys.argv[1]
     if not filename.endswith(".fedxd"):
@@ -15,7 +17,7 @@ if len(sys.argv) == 2:
 
     if error:
         print(error.as_string())
-    exit(0)
+    running = False
         
 else:
     print("FedxD Programming Language")
@@ -23,13 +25,13 @@ else:
     print("Type 'exit' to exit")
     print("")
 
-while True:
+while running:
     text = input("FedxD > ")
 
     if text.strip() == "":
         continue
     if text == "exit":
-        break
+        running = False
 
     result, error = basic.run("<stdin>", text)
 

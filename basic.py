@@ -63,6 +63,8 @@ RESERVED_KEYWORDS = [
     "continue",
     "break",
     "execute",
+    "import",
+    "exit"
 ]
 
 
@@ -87,7 +89,7 @@ class Error:
         self.details = details
 
     def as_string(self):
-        result = f"{self.error_name}: {self.details}\n"
+        result = f"\n{self.error_name}: {self.details}\n"
         result += f"File {self.pos_start.fn}, line {self.pos_start.ln + 1}"
         result += "\n\n" + string_with_arrows(
             self.pos_start.ftxt, self.pos_start, self.pos_end
@@ -116,7 +118,8 @@ class RTError(Error):
         self.context = context
 
     def as_string(self):
-        result = self.generate_traceback()
+        result = "\n"
+        result += self.generate_traceback()
         result += f"{self.error_name}: {self.details}"
         result += "\n\n" + string_with_arrows(
             self.pos_start.ftxt, self.pos_start, self.pos_end
@@ -1769,8 +1772,8 @@ class String(Value):
         self.value = value
 
     def added_to(self, other):
-        if isinstance(other, String):
-            return String(self.value + other.value).set_context(self.context), None
+        if isinstance(other, String) or isinstance(other, Number):
+            return String(f"{self.value}{other.value}").set_context(self.context), None
         else:
             return None, Value.illegal_operation(self, other)
 
@@ -2554,7 +2557,8 @@ class BuiltInFunction(BaseFunction):
                 )
             )
 
-        _, error = run(file.value, script)
+        values = run(file.value, script)
+        error = values[1]
         if error:
             return RTResult().failure(
                 RTError(
@@ -2593,21 +2597,25 @@ class BuiltInFunction(BaseFunction):
 
             filename = file.value.split("/")[-1].split(".")[0]
 
-            _, error, symbols_table = run(file.value, script)
-
+            values = run(file.value, script)
+            error = values[1]
+            import_context = values[2]
+            symbols_table = import_context.symbol_table
             if error:
                 return RTResult().failure(
                     RTError(
                         self.pos_start,
                         self.pos_end,
                         f"Error running script '{file.value}'\b{error}",
-                        exec_ctx,
+                        import_context if import_context else exec_ctx,
                     )
                 )
 
-            for key, value in symbols_table.symbols.items():
-                keyname = f"{filename}_{key}"
-                add_to_symbol_table(keyname, value)
+            symbols = {
+                f"{filename}_{key}": value for key, value in symbols_table.symbols.items()
+            }
+            
+            add_to_symbol_table(symbols)
 
         except Exception as e:
             return RTResult().failure(
@@ -2615,7 +2623,7 @@ class BuiltInFunction(BaseFunction):
                     self.pos_start,
                     self.pos_end,
                     f"Error reading file '{file.value}' \t {e}",
-                    exec_ctx,
+                    import_context if import_context else exec_ctx,
                 )
             )
 
@@ -2694,6 +2702,10 @@ class SymbolTable:
     def remove(self, name):
         del self.symbols[name]
 
+    def copy(self):
+        copy = SymbolTable(self.parent)
+        copy.symbols = self.symbols.copy()
+        return copy
 
 #######################################
 # INTERPRETER
@@ -3044,29 +3056,55 @@ global_symbol_table.set("system", BuiltInFunction.system)
 global_symbol_table.set("random", BuiltInFunction.random)
 global_symbol_table.set("shuffle", BuiltInFunction.shuffle)
 global_symbol_table.set("execute", BuiltInFunction.execute_file)
+global_symbol_table.set("import", BuiltInFunction.import_file)
 
+context = Context("<program>")
+context.symbol_table = global_symbol_table
+
+def filerun(fn, text):
+    # Generate tokens
+    lexer = Lexer(fn, text)
+    tokens, error = lexer.make_tokens()
+    if error:
+        return None, error, None
+
+    # Generate AST
+    parser = Parser(tokens)
+    ast = parser.parse()
+    if ast.error:
+        return None, ast.error, None
+
+    # Run program
+    interpreter = Interpreter()
+    result = interpreter.visit(ast.node, file_context)
+
+    file_context = Context(fn)
+    file_context.symbol_table = global_symbol_table.copy()
+    return result.value, result.error, file_context
 
 def run(fn, text):
     # Generate tokens
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
     if error:
-        return None, error
+        return None, error, None
 
     # Generate AST
     parser = Parser(tokens)
     ast = parser.parse()
     if ast.error:
-        return None, ast.error
+        return None, ast.error, None
 
     # Run program
     interpreter = Interpreter()
-    context = Context("<program>")
-    context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
 
-    return result.value, result.error
+    return result.value, result.error, context
 
 
-def add_to_symbol_table(name, value):
-    global_symbol_table.set(name, value)
+def add_to_symbol_table(symbols):
+    global context, global_symbol_table
+
+    global_symbol_table.symbols.update(symbols)
+    
+    context.symbol_table = global_symbol_table

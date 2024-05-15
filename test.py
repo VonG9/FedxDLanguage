@@ -18,6 +18,9 @@ replacers = {
     "TRUE": "True",
     "FALSE": "False",
     "END": "end",
+    "RETURN": "return",
+    "CONTINUE": "continue",
+    "BREAK": "break",
 }
 
 for key, value in replacers.items():
